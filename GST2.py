@@ -5,13 +5,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from click import command
 import mysql.connector
-
-global gstwindow,game_frame, my_game,Lbfr3
-gstwindow=Tk()
-gstwindow.configure(bg="#2f516f")
-gstwindow.title('GST')
-gstwindow.geometry("1700x1700")
-
+from tkcalendar import DateEntry
 
 
 def fun(): #db connection
@@ -41,10 +35,10 @@ def addtax():
     Label(addtaxwindow,image=img,width=300,height=300,bg="#243e54").place(x=30,y=260)
 
     Label(addtaxwindow,text='TAX Name' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=280)
-    Entry(addtaxwindow,bg='#243e54',width=50,textvariable=taxname).place(x=580,y=340)
+    Entry(addtaxwindow,bg='#243e54',fg='white',width=50,textvariable=taxname).place(x=580,y=340,height=30)
 
     Label(addtaxwindow,text='Description' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=400)
-    Entry(addtaxwindow,bg='#243e54',width=50,textvariable=description,).place(x=580,y=440)
+    Entry(addtaxwindow,bg='#243e54',fg='white',width=50,textvariable=description,).place(x=580,y=440,height=30)
 
     Button(addtaxwindow,bg='#243e54',text="SAVE",font='arial 15',fg='white',width=20,command=addtx).place(x=580,y=500,)
 
@@ -62,12 +56,62 @@ def addtx():
     mydb.commit()
     messagebox.showinfo("Added successfully","Added record successfully")
 
+def gotxpayment():
+    global GotTaxWindow ,img
+    GotTaxWindow=Toplevel(gstwindow)
+    GotTaxWindow.title('Record Payments')
+    GotTaxWindow.configure(bg="#2f516f")
+    GotTaxWindow.geometry("3600x3600")
+    Lbfr1=LabelFrame(GotTaxWindow,width=1400,height=150,bg="#243e54",).place(x=4,y=50)
+    Label(GotTaxWindow,text='RECORD PAYMENTS' ,font='arial 25', bg="#243e54" , fg='white').place(x=500,y=80)
+    Lbfr2=LabelFrame(GotTaxWindow,width=1200,height=580,bg="#243e54",).place(x=4,y=240)
 
-def main():                 
+    img=PhotoImage(file='creditcardbillpayment.PNG')
+    Label(GotTaxWindow,image=img,width=400,height=400,bg="white").place(x=30,y=260)  #243e54
     
-    def rettab():
 
-        main()
+    global textname,paymentdate,recordamount,recordmemo
+    textname=StringVar()
+    paymentdate=StringVar()
+    recordamount=StringVar()
+    recordmemo=StringVar()
+
+    Label(GotTaxWindow,text='Enter text' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=300)
+    Entry(GotTaxWindow,bg='#243e54',fg='white',width=50,textvariable=textname).place(x=580,y=340,height=25)
+
+    Label(GotTaxWindow,text='Payment date' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=380)
+    # Entry(GotTaxWindow,bg='#243e54',width=50,).place(x=580,y=420)
+    cal=DateEntry(GotTaxWindow,selectmode='day',textvariable=paymentdate).place(x=580,y=420,height=25,width=300)
+
+
+    Label(GotTaxWindow,text='Amount' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=470)
+    Entry(GotTaxWindow, bg='#243e54',fg='white', width=50,textvariable=recordamount).place(x=580,y=520,height=25)
+
+    Label(GotTaxWindow,text='Memo' ,font='arial 15', bg="#243e54" , fg='white').place(x=580,y=560,)
+    Entry(GotTaxWindow,bg='#243e54',fg='white', width=50,textvariable=recordmemo).place(x=580,y=590,height=50)
+
+    Button(GotTaxWindow , bg='#673ab7',text="Submit form",font='arial 15',fg='white',width=30,command=gottaxpaymentadd).place(x=580,y=650,)
+   
+
+def gottaxpaymentadd():
+    fun()
+    # textname,paymentdate,recordamount,recordmemo
+    txtname=textname.get()
+    paydate=paymentdate.get()
+    recamt=recordamount.get()
+    recmemo=recordmemo.get()
+    sql="INSERT INTO recordpay (textname,paymentdate,recordamount,recordmemo)  VALUES  (%s,%s,%s,%s)" #Adding values into db
+    val=(txtname,paydate,recamt,recmemo)
+    mycursor.execute(sql,val)
+    mydb.commit()
+    messagebox.showinfo("Added successfully","Tax Payment Added")
+
+def main():  
+    global gstwindow               
+    gstwindow=Tk()
+    gstwindow.configure(bg="#2f516f")
+    gstwindow.title('GST')
+    gstwindow.geometry("1700x1700")
     Lbfr1=LabelFrame(gstwindow,width=1400,height=150,bg="#243e54",).place(x=4,y=50)
     Label(Lbfr1,text='GST' ,font='arial 25', bg="#243e54" , fg='white').place(x=500,y=80)
     Addtxbtn=Button(Lbfr1,fg='white' , text='Add tax' ,bg="#243e54",padx='10',pady='10', width='7',command=addtax)
@@ -159,8 +203,9 @@ def main():
     my_tree2.heading('AMOUNT',text='AMOUNT',anchor=CENTER)
     my_tree2.heading('MEMO',text='MEMO',anchor=CENTER)
     my_tree2.place(x=30,y=50)
+
     #Record payment button
-    re=Button(f2,text='Record Payment',fg='white',bg='#1b2f40')
+    re=Button(f2,text='Record Payment',fg='white',bg='#1b2f40' ,command=gotxpayment)
     re.place(x=770,y=20,width=110,height=30)
      
     #Note book Place
